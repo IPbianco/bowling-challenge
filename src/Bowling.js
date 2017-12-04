@@ -6,15 +6,9 @@ function Bowling () {
   this.scoreCard = [[0,0], [0,0]]
   this.frame = 2
   this.roll = 0
+  this.pins = 0
 }
 
-Bowling.prototype.frameNumber = function () {
-  return this.frame
-}
-
-Bowling.prototype.rollNumber = function () {
-  return this.roll
-}
 
 Bowling.prototype.isFirstRoll = function () {
   return this.roll == 0
@@ -25,6 +19,7 @@ Bowling.prototype.isStandardFrames = function () {
 }
 
 Bowling.prototype.strikeOrSpareBefore = function () {
+  if (this.scoreCard[i-1][0] + this.scoreCard[i-1][1] == '10-') return true
   return this.scoreCard[i-1][0] + this.scoreCard[i-1][1] == 10
 }
 
@@ -53,6 +48,18 @@ Bowling.prototype.changeRoll = function () {
   this.roll = 1
 }
 
+Bowling.prototype.isEleventhFrame = function () {
+  return this.frame == 12
+}
+
+Bowling.prototype.isTwelfthFrame = function () {
+  return this.frame == 13
+}
+
+Bowling.prototype.pointsExceedTen = function (points) {
+  return this.scoreCard[i][0] + points > 10
+}
+
 Bowling.prototype.changeFrameOrRoll = function (points) {
   if (points == 10) {
     this.changeFrame()
@@ -61,16 +68,25 @@ Bowling.prototype.changeFrameOrRoll = function (points) {
   }
 }
 
+Bowling.prototype.increasePins = function () {
+  if (this.pins < 10) {
+    this.pins++
+  }
+  else {
+    this.pins = 0
+  }
+}
+
 Bowling.prototype.updateScore = function (points) {
 
-  i = this.frameNumber()
-  j = this.rollNumber()
+  i = this.frame
+  j = this.roll
 
   if (this.isStandardFrames()) {
 
-    switch (this.rollNumber()) {
+    switch (this.roll) {
       case 0:
-        this.scoreCard.push([points, 0])
+        this.scoreCard.push([points, '-'])
         if (this.strikeOrSpareBefore()) {
           if (this.strikeBefore()) {
             if (this.strikeBeforeLast()) {
@@ -87,6 +103,7 @@ Bowling.prototype.updateScore = function (points) {
         this.changeFrameOrRoll(points)
         break;
       case 1:
+        if (this.pointsExceedTen(points)) points = 10 - this.scoreCard[i][0]
         this.scoreCard[i][1] = points
         if (this.strikeBefore()) {
           this.addPoints(points * 2)
@@ -96,11 +113,11 @@ Bowling.prototype.updateScore = function (points) {
         this.changeFrame()
     }
 
-  } else if (this.frame == 12) {
+  } else if (this.isEleventhFrame() && this.strikeOrSpareBefore()) {
 
-    switch (this.rollNumber()) {
+    switch (this.roll) {
       case 0:
-        this.scoreCard.push([points, 0])
+        this.scoreCard.push([points, '-'])
         if (this.strikeBeforeAndBeforeLast()) {
           this.addPoints(points * 2)
         } else {
@@ -109,13 +126,15 @@ Bowling.prototype.updateScore = function (points) {
         this.changeFrameOrRoll(points)
         break;
       case 1:
+        if (this.pointsExceedTen(points)) points = 10 - this.scoreCard[i][0]
         this.scoreCard[i][1] = points
         this.addPoints(points)
         this.changeFrame()
     }
 
-  } else {
-      this.scoreCard.push([points, 0])
+  } else if (this.isTwelfthFrame() && this.strikeBeforeAndBeforeLast()){
+      this.scoreCard.push([points, '-'])
       this.addPoints(points)
+      this.changeFrame()
     }
-  }
+}

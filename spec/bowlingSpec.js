@@ -1,6 +1,8 @@
 describe('Bowling', function () {
 
   var game
+  var i
+  var set
 
   beforeEach(function () {
     game = new Bowling ()
@@ -14,107 +16,102 @@ describe('Bowling', function () {
 
   describe('#updateScore', function () {
     describe('first frame', function () {
-      it('adds 8 points from first roll', function () {
+      beforeEach(function () {
         game.updateScore(8)
+      })
+      it('adds 8 points from first roll', function () {
         expect(game.score).toEqual(8)
       })
 
       it('adds 1 point from the second roll', function () {
-        game.updateScore(8)
         game.updateScore(1)
         expect(game.score).toEqual(9)
       })
     })
 
     describe('second frame', function () {
-      // describe('whith p')
-      it('adds points + bonus after first roll if a spare occurred before', function () {
-        game.updateScore(2)
-        game.updateScore(8)
-        game.updateScore(5)
-        expect(game.score).toEqual(20)
+      describe('when a spare ocurred before', function () {
+        beforeEach(function () {
+          set = [2, 8, 5]
+          set.forEach(function (points){
+            game.updateScore(points)
+          })
+        })
+        it('adds points + bonus after first roll', function () {
+          expect(game.score).toEqual(20)
+        })
+
+        it('adds no bonus points after the second roll', function () {
+          game.updateScore(3)
+          expect(game.score).toEqual(23)
+        })
       })
 
-      it('adds no bonus points after the second roll if a spare occurred before', function () {
-        game.updateScore(2)
-        game.updateScore(8)
-        game.updateScore(5)
-        game.updateScore(3)
-        expect(game.score).toEqual(23)
-      })
+      describe('when a strike ocurred before', function () {
+        beforeEach(function () {
+          set = [10, 5]
+          set.forEach(function (points){
+            game.updateScore(points)
+          })
+        })
+        it('adds bonus points after first roll if a strike occurred before', function () {
+          expect(game.score).toEqual(20)
+        })
 
-      it('adds bonus points after first roll if a strike occurred before', function () {
-        game.updateScore(10)
-        game.updateScore(5)
-        expect(game.score).toEqual(20)
-      })
-
-      it('adds bonus points after second roll if a strike occurred before', function () {
-        game.updateScore(10)
-        game.updateScore(5)
-        game.updateScore(3)
-        expect(game.score).toEqual(26)
+        it('adds bonus points after second roll if a strike occurred before', function () {
+          game.updateScore(3)
+          expect(game.score).toEqual(26)
+        })
       })
     })
 
     describe('third frame', function(){
-      it('adds points + bonus after first roll when two strikes in a row', function() {
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(3)
-        expect(game.score).toEqual(39)
-      })
+      describe('when two strikes in a row ocurred before', function () {
+        beforeEach(function () {
+          set = [10, 10, 3]
+          set.forEach(function (points){
+            game.updateScore(points)
+          })
+        })
+        it('adds points + bonus after first roll when two strikes in a row', function() {
+          expect(game.score).toEqual(39)
+        })
 
-      it('adds points + bonus after second roll when two strikes in a row', function() {
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(3)
-        game.updateScore(3)
-        expect(game.score).toEqual(45)
+        it('adds points + bonus after second roll when two strikes in a row', function() {
+          game.updateScore(3)
+          expect(game.score).toEqual(45)
+        })
       })
     })
 
-    describe('test game', function(){
-      it('from instructions', function() {
-        game.updateScore(1)
-        game.updateScore(4)
-        game.updateScore(4)
-        game.updateScore(5)
-        game.updateScore(6)
-        game.updateScore(4)
-        game.updateScore(5)
-        game.updateScore(5)
-        game.updateScore(10)
-        game.updateScore(0)
-        game.updateScore(1)
-        game.updateScore(7)
-        game.updateScore(3)
-        game.updateScore(6)
-        game.updateScore(4)
-        game.updateScore(10)
-        game.updateScore(2)
-        game.updateScore(8)
-        game.updateScore(6)
+    describe('test game from instructions', function(){
+      beforeEach(function () {
+        set = [1, 4, 4, 5, 6, 4, 5, 5, 10, 0, 1, 7, 3, 6, 4, 10, 2, 8, 6]
+        set.forEach(function (points){
+          game.updateScore(points)
+        })
+      })
+      it('has a final score of 133', function() {
         expect(game.score).toEqual(133)
       })
     })
 
     describe('perfect game', function(){
+      beforeEach(function () {
+        for (i = 0; i < 12; i++) {
+          game.updateScore(10)
+        }
+      })
       it('has a score of 300', function() {
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
-        game.updateScore(10)
         expect(game.score).toEqual(300)
       })
+    })
+  })
+
+  describe('#updatePins', function () {
+    it('increases the number of pins that the user wants to knock down', function () {
+      game.increasePins()
+      expect(game.pins).toEqual(1)
     })
   })
 })
